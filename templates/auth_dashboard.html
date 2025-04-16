@@ -1,6 +1,74 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
+<style>
+  body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #2c3e50;
+      margin: 0;
+      padding: 0;
+  }
+
+  h2, h3 {
+      text-align: center;
+      margin-top: 30px;
+  }
+
+  p {
+      text-align: center;
+      max-width: 600px;
+      margin: 20px auto;
+      font-size: 16px;
+      color: #555;
+  }
+
+  ul {
+      list-style-type: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 30px auto;
+  }
+
+  li {
+      background-color: #ffffff;
+      margin: 12px 0;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transition: transform 0.2s ease;
+  }
+
+  li:hover {
+      transform: scale(1.02);
+  }
+
+  li a {
+      text-decoration: none;
+      color: #3498db;
+      font-weight: bold;
+      font-size: 16px;
+  }
+
+  a[href="{{ url_for('logout') }}"] {
+      display: block;
+      text-align: center;
+      margin: 40px auto;
+      width: 120px;
+      padding: 10px;
+      background-color: #e74c3c;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+  }
+
+  a[href="{{ url_for('logout') }}"]:hover {
+      background-color: #c0392b;
+  }
+</style>
+
   <h2>Welcome, {{ user }}!</h2>
   <h3>Your role: {{ role }}</h3>
 

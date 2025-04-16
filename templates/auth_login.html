@@ -1,6 +1,87 @@
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
 {% block content %}
+<style>
+  body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+  }
+
+  h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-top: 60px;
+  }
+
+  form {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      color: #34495e;
+      font-weight: bold;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+      border-color: #3498db;
+      outline: none;
+  }
+
+  input[type="radio"] {
+      margin-right: 8px;
+      margin-top: 8px;
+  }
+
+  input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+  }
+
+  input[type="submit"]:hover {
+      background-color: #2980b9;
+  }
+
+  ul {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 0;
+      list-style-type: none;
+  }
+
+  li {
+      color: red;
+      text-align: center;
+  }
+</style>
+
 <h2>Login</h2>
 
 {% with messages = get_flashed_messages() %}
