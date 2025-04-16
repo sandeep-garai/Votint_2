@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <h2>Welcome, {{ user }}!</h2>
+  <h3>Your role: {{ role }}</h3>
+
+  <p>This is your admin dashboard. From here, you can manage elections, candidates, and EA members.</p>
+
+  <div style="margin-top: 20px;">
+    <!-- <ul>
+      <li><a href="/add_elections">Add Elections</a></li>
+      <li><a href="/add_candidates">Add Candidates</a></li>
+      <li><a href="/add_eaMember">Add EA Member</a></li>
+    </ul> -->
+    <ul>
+      <li><a href="{{ url_for('add_elections') }}">➕ Add Elections</a></li>
+      <li><a href="{{ url_for('add_candidates') }}">👤 Add Candidates</a></li>
+      <li><a href="{{ url_for('add_eaMember') }}">🔐 Add EA Member</a></li>
+    </ul>
+  </div>
+
+  <br>
+  <a href="{{ url_for('logout') }}">🚪 Logout</a>
+{% endblock %}
+

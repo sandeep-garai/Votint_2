@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h2>Login</h2>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <label>Username:</label><br>
+    <input type="text" name="username" required><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br>
+
+    <label>Login as:</label><br>
+    <input type="radio" name="role" value="admin" checked> Admin<br>
+    <input type="radio" name="role" value="ea_authority"> EA Authority<br><br>
+
+    <input type="submit" value="Login">
+  </form>
+{% endblock %}

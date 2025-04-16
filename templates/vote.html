@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Voting in: {{ election['name'] }}</h2>
+
+<form method="POST">
+  {% for candidate in candidates %}
+    <input type="radio" name="candidate_id" value="{{ candidate['id'] }}" required>
+    {{ candidate['name'] }} ({{ candidate['party'] }})<br>
+  {% endfor %}
+  <br>
+  <button type="submit">Submit Vote</button>
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li style="color: green;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<br>
+<a href="{{ url_for('voter_dashboard') }}">← Back to Dashboard</a>
+{% endblock %}
