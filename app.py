@@ -5,10 +5,10 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this in production
 
 # Dummy user for demo
-USER_CREDENTIALS = {
-    'username': 'admin',
-    'password': 'pass123'
-}
+# USER_CREDENTIALS = {
+#     'username': 'admin',
+#     'password': 'pass123'
+# }
 
 def get_db_connection():
     conn = sqlite3.connect('evoting.db')

@@ -1,83 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'base_public.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting</title>
 
-    h1 {
-        text-align: center;
-        color: #333;
-        margin-top: 40px;
-    }
-
-    .container {
-        display: flex;
-        justify-content: space-between;
-        padding: 60px 100px;
-    }
-
-    .panel {
-        width: 45%;
-        border-radius: 12px;
-        padding: 30px 40px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
-
-    .voter_panel {
-        background-color: #f5f5f5;
-    }
-
-    .auth_panel {
-        background-color: #fdfdfd;
-    }
-
-    .panel h2 {
-        margin-bottom: 20px;
-        color: #2c3e50;
-    }
-
-    .panel a {
-        text-decoration: none;
-        padding: 10px 25px;
-        border-radius: 8px;
-        display: inline-block;
-        color: white;
-        transition: background-color 0.3s ease;
-    }
-
-    .voter_panel a[href="/voter_login"] {
-        background-color: #3498db;
-        margin: 15px 0;
-    }
-
-    .voter_panel a[href="/register"] {
-        background-color: #2ecc71;
-        margin: 15px 0;
-    }
-
-    .auth_panel a {
-        background-color: #e67e22;
-        margin: 15px 0;
-    }
-
-    .panel a:hover {
-        opacity: 0.9;
-    }
-</style>
-<h1>Welcome to the Homepage!</h1>
-<div>
-    <div class="voter_panel">
-        <p><a href="/voter_login">Login</a></p>
-
-        <p><a href="/register">Register</a></p> 
+  <section class="hero">
+    <div class="hero-text">
+      <h1>ONLINE VOTING</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+      <a href="#" class="learn-more">LEARN MORE</a>
     </div>
-    <div class="auth_panel">
-        <p><a href="/auth_login">Authority Login</a></p>
+    <div class="hero-img">
+        <img src="{{ url_for('static', filename='images/online_voting_2.jpg') }}" alt="Online Voting Image">
     </div>
-</div>
+  </section>
 {% endblock %}
