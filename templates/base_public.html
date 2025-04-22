@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Online Voting</title>
+        <style>
+          body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fb;
+            color: #2c3e50;
+          }
+      
+          header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+          }
+      
+          .logo {
+            font-size: 20px;
+            font-weight: bold;
+          }
+      
+          nav a {
+            margin-left: 25px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 16px;
+            transition: color 0.3s ease;
+          }
+      
+          nav a:hover {
+            color: #007bff;
+          }
+      
+          nav a.button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-left: 25px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+          }
+      
+          nav a.button:hover {
+            background-color: #0056b3;
+          }
+      
+          .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px;
+            flex-wrap: wrap;
+          }
+      
+          .hero-text {
+            max-width: 500px;
+          }
+      
+          .hero-text h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+          }
+      
+          .hero-text p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+          }
+      
+          .hero-text .learn-more {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+          }
+      
+          .hero-text .learn-more:hover {
+            background-color: #0056b3;
+          }
+      
+          .hero-img img {
+            max-width: 1500px;
+            width: 100%;
+          }
+      
+          @media (max-width: 768px) {
+            .hero {
+              flex-direction: column-reverse;
+              text-align: center;
+            }
+      
+            .hero-text, .hero-img {
+              margin-top: 30px;
+            }
+      
+            nav {
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              margin-top: 15px;
+            }
+      
+            header {
+              flex-direction: column;
+            }
+          }
+        </style>
+      </head>
+    <header>
+        <div class="logo">LOGO</div>
+        <nav>
+          <a href="/">HOME</a>
+          <a href="#about">ABOUT</a>
+          <a href="/voter_login" class="button">LOGIN</a>
+          <a href="/auth_login" class="button">AUTHORITY LOGIN</a>
+        </nav>
+      </header>
+      {% block content %}{% endblock %}
+</html>

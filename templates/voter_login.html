@@ -1,100 +1,107 @@
-{% extends 'base.html' %}
+{% extends 'base_public.html' %}
 {% block content %}
 
 <style>
-  body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 0;
-  }
-
-  h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-top: 60px;
-  }
-
-  form {
+    .login-container {
       max-width: 400px;
-      margin: 40px auto;
-      padding: 30px;
+      margin: 60px auto;
       background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  label {
-      display: block;
-      margin-bottom: 8px;
-      color: #34495e;
-      font-weight: bold;
-  }
-
-  input[type="text"],
-  input[type="password"] {
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+  
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+  
+    .login-container label {
+      font-weight: 500;
+      color: #333;
+    }
+  
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
       width: 100%;
-      padding: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
       margin-bottom: 20px;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-  }
-
-  input[type="text"]:focus,
-  input[type="password"]:focus {
-      border-color: #3498db;
-      outline: none;
-  }
-
-  input[type="submit"] {
+      border-radius: 6px;
+      font-size: 15px;
+    }
+  
+    .login-container input[type="submit"] {
       width: 100%;
-      padding: 12px;
-      background-color: #3498db;
+      background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      padding: 12px;
+      border-radius: 6px;
       font-size: 16px;
-      transition: background-color 0.3s ease;
-  }
-
-  input[type="submit"]:hover {
-      background-color: #2980b9;
-  }
-
-  ul {
-      max-width: 400px;
-      margin: 20px auto;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  
+    .login-container input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+  
+    .login-container .register-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+  
+    .login-container .register-link a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+  
+    .login-container .register-link a:hover {
+      text-decoration: underline;
+    }
+  
+    .login-container ul {
       padding: 0;
-      list-style-type: none;
-  }
-
-  li {
+      margin-top: 15px;
+      list-style: none;
       color: red;
       text-align: center;
-  }
-</style>
-<h2>Voter Login</h2>
-
-<form method="POST">
-    <label>Mobile Number:</label><br>
-    <input type="text" name="mobile" required><br><br>
-
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
-
-    <input type="submit" value="Login">
-</form>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li style="color: red;">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-{% endblock %}
+    }
+  </style>
+  
+  <div class="login-container">
+    <h2>Voter Login</h2>
+  
+    <form method="POST">
+      <label>Mobile Number:</label><br>
+      <input type="text" name="mobile" required><br>
+  
+      <label>Password:</label><br>
+      <input type="password" name="password" required><br>
+  
+      <input type="submit" value="Login">
+  
+      <div class="register-link">
+        <p>Not Registered?
+          <a href="/voter_register">REGISTER</a>
+        </p>
+      </div>
+    </form>
+  
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+  
+  {% endblock %}
