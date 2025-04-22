@@ -9,6 +9,12 @@ app.secret_key = 'supersecretkey'  # Change this in production
 #     'username': 'admin',
 #     'password': 'pass123'
 # }
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 def get_db_connection():
     conn = sqlite3.connect('evoting.db')
@@ -232,6 +238,7 @@ def auth_login():
             session['user'] = username
             session['role'] = role
             if role == 'admin':
+                return redirect(url_for('auth_dashboard'))
                 return render_template('auth_dashboard.html', user=username, role=role)
             else:
                 return render_template('ea_dashboard.html', user=username, role=role)
@@ -313,10 +320,25 @@ def add_elections():
 
 @app.route('/auth_dashboard')
 def auth_dashboard():
-    if session.get('role') != 'admin':
+    if not session.get('user') or session.get('role') != 'admin':
         return redirect(url_for('auth_login'))
-    return render_template('auth_dashboard.html', user=session['user'], role=session['role'])
+    
+    conn = get_db_connection()
+    voter_count = conn.execute('SELECT COUNT(*) FROM voters').fetchone()[0]
+    candidate_count = conn.execute('SELECT COUNT(*) FROM candidates').fetchone()[0]
+    election_count = conn.execute('SELECT COUNT(*) FROM elections').fetchone()[0]
+    print("Voters:", voter_count)
+    print("Candidates:", candidate_count)
+    print("Elections:", election_count)
+    conn.close()
 
+
+    return render_template('auth_dashboard.html',
+                           user=session.get('user'),
+                           role=session.get('role'),
+                           voters=voter_count,
+                           candidates=candidate_count,
+                           elections=election_count)
 # @app.route('/ea_dashboard')
 # def auth_dashboard():
 #     if session.get('role') != 'ea_authority':
@@ -329,13 +351,13 @@ def dashboard():
     if 'user' not in session:
         flash('Please login first.')
         return redirect(url_for('login'))
-    return render_template('dashboard.html', user=session['user'])
+    return render_template('dashboard.html')
 
 
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Logged out successfully.')
+    #flash('Logged out successfully.')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
