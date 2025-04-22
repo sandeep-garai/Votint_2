@@ -63,43 +63,24 @@ def voter_login():
         voter = cursor.fetchone()
         conn.close()
 
-        # If user exists and password matches
-        if voter and check_password_hash(voter['password_hash'], password):
-            session['user'] = voter['name']        # Store name for greeting/use
-            session['voter_id'] = voter['id']      # Store voter ID
-            session['role'] = 'voter'              # Define role
-            return redirect(url_for('voter_dashboard'))
+        if voter:
+            # voter[5] = password_hash, voter[6] = verified (index may vary, safer to use dict if you can)
+            if check_password_hash(voter['password_hash'], password):
+                if voter['verified']:
+                    session['user'] = voter['name']
+                    session['voter_id'] = voter['id']
+                    session['role'] = 'voter'
+                    return redirect(url_for('voter_dashboard'))
+                else:
+                    flash('Your account is under verification. Please wait for approval.', 'warning')
+                    return redirect(url_for('voter_dashboard'))
+            else:
+                flash('Invalid mobile number or password. Please try again.', 'error')
         else:
             flash('Invalid mobile number or password. Please try again.', 'error')
 
     return render_template('voter_login.html')
 
-# @app.route('/voter_register', methods=['GET', 'POST'])
-# def voter_register():
-#     if request.method == 'POST':
-#         voter_id = request.form['voter_id']
-#         name = request.form['name']
-#         mobile = request.form['mobile']
-#         password = request.form['password']
-
-#         hashed_pw = generate_password_hash(password)
-#         dummy_public_key = 'placeholder_public_key'  # Will be updated later by client
-
-#         conn = get_db_connection()
-#         try:
-#             conn.execute('''
-#                 INSERT INTO voters (id, name, mobile, password_hash, public_key)
-#                 VALUES (?, ?, ?, ?, ?)
-#             ''', (voter_id, name, mobile, hashed_pw, dummy_public_key))
-#             conn.commit()
-#             flash('Registration successful. You can now log in.')
-#             return redirect(url_for('voter_login'))
-#         except Exception as e:
-#             flash('Registration failed. That mobile number or ID might already be used.')
-#         finally:
-#             conn.close()
-
-#     return render_template('voter_register.html')
 
 @app.route('/voter_register', methods=['GET', 'POST'])
 def voter_register():
@@ -241,11 +222,34 @@ def auth_login():
                 return redirect(url_for('auth_dashboard'))
                 return render_template('auth_dashboard.html', user=username, role=role)
             else:
+                return redirect(url_for('ea_dashboard'))
                 return render_template('ea_dashboard.html', user=username, role=role)
         else:
             flash('Invalid username or password.')
 
     return render_template('auth_login.html')
+
+@app.route('/auth_dashboard')
+def auth_dashboard():
+    if not session.get('user') or session.get('role') != 'admin':
+        return redirect(url_for('auth_login'))
+    
+    conn = get_db_connection()
+    voter_count = conn.execute('SELECT COUNT(*) FROM voters').fetchone()[0]
+    candidate_count = conn.execute('SELECT COUNT(*) FROM candidates').fetchone()[0]
+    election_count = conn.execute('SELECT COUNT(*) FROM elections').fetchone()[0]
+    print("Voters:", voter_count)
+    print("Candidates:", candidate_count)
+    print("Elections:", election_count)
+    conn.close()
+
+
+    return render_template('auth_dashboard.html',
+                           user=session.get('user'),
+                           role=session.get('role'),
+                           voters=voter_count,
+                           candidates=candidate_count,
+                           elections=election_count)
 
 @app.route('/add_eaMember', methods=['GET', 'POST'])
 def add_eaMember():
@@ -312,39 +316,41 @@ def add_elections():
     return render_template('add_elections.html')
 
 
-# @app.route('/auth_dashboard')
-# def auth_dashboard():
-#     if session.get('role') != 'admin':
-#         return redirect(url_for('auth_login'))
-#     return render_template('add_eaMember.html', user=session['user'])
-
-@app.route('/auth_dashboard')
-def auth_dashboard():
-    if not session.get('user') or session.get('role') != 'admin':
+@app.route('/ea_dashboard')
+def ea_dashboard():
+    if not session.get('user') or session.get('role') != 'ea_authority':
         return redirect(url_for('auth_login'))
     
     conn = get_db_connection()
-    voter_count = conn.execute('SELECT COUNT(*) FROM voters').fetchone()[0]
-    candidate_count = conn.execute('SELECT COUNT(*) FROM candidates').fetchone()[0]
-    election_count = conn.execute('SELECT COUNT(*) FROM elections').fetchone()[0]
-    print("Voters:", voter_count)
-    print("Candidates:", candidate_count)
-    print("Elections:", election_count)
+    unverified_voters = conn.execute('SELECT COUNT(*) FROM voters WHERE verified = 0').fetchone()[0]
+    unsigned_votes = conn.execute("SELECT COUNT(*) FROM blinded_votes WHERE status = ?", ('signed',)).fetchone()[0]
     conn.close()
 
-
-    return render_template('auth_dashboard.html',
+    return render_template('ea_dashboard.html',
                            user=session.get('user'),
                            role=session.get('role'),
-                           voters=voter_count,
-                           candidates=candidate_count,
-                           elections=election_count)
-# @app.route('/ea_dashboard')
-# def auth_dashboard():
-#     if session.get('role') != 'ea_authority':
-#         return redirect(url_for('auth_login'))
-#     return render_template('ea_dashboard.html', user=session['user'])
+                           unverified_voters=unverified_voters,
+                           unsigned_votes=unsigned_votes)
 
+
+@app.route('/verify_voters', methods=['GET', 'POST'])
+def verify_voters():
+    if not session.get('user') or session.get('role') != 'ea_authority':
+        return redirect(url_for('ea_login'))  # Adjust this to your EA login route
+
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        voter_id = request.form.get('voter_id')
+        conn.execute('UPDATE voters SET verified = 1 WHERE id = ?', (voter_id,))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('verify_voters'))  # ⬅️ Redirect after POST to avoid resubmission
+
+    voters = conn.execute('SELECT id, name, mobile, region FROM voters WHERE verified = 0').fetchall()
+    conn.close()
+
+    return render_template('verify_vote.html', voters=voters)
 
 @app.route('/dashboard')
 def dashboard():
@@ -352,7 +358,6 @@ def dashboard():
         flash('Please login first.')
         return redirect(url_for('login'))
     return render_template('dashboard.html')
-
 
 @app.route('/logout')
 def logout():

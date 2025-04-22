@@ -2,103 +2,146 @@
 {% block content %}
 
 <style>
-    .login-container {
-      max-width: 400px;
-      margin: 60px auto;
-      background-color: #ffffff;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
-  
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #2c3e50;
-    }
-  
-    .login-container label {
-      font-weight: 500;
-      color: #333;
-    }
-  
-    .login-container input[type="text"],
-    .login-container input[type="password"] {
-      width: 100%;
-      padding: 10px 12px;
-      margin-top: 8px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-  
-    .login-container input[type="submit"] {
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-  
-    .login-container input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-  
-    .login-container .register-link {
-      text-align: center;
-      margin-top: 15px;
-    }
-  
-    .login-container .register-link a {
-      color: #007bff;
-      text-decoration: none;
-      font-weight: bold;
-      margin-left: 5px;
-    }
-  
-    .login-container .register-link a:hover {
-      text-decoration: underline;
-    }
-  
-    .login-container ul {
-      padding: 0;
-      margin-top: 15px;
-      list-style: none;
-      color: red;
-      text-align: center;
-    }
-  </style>
-  
-  <div class="login-container">
-    <h2>Voter Login</h2>
-  
-    <form method="POST">
-      <label>Mobile Number:</label><br>
-      <input type="text" name="mobile" required><br>
-  
-      <label>Password:</label><br>
-      <input type="password" name="password" required><br>
-  
-      <input type="submit" value="Login">
-  
-      
-    </form>
-    Didn't registered? <a href="{{ url_for('voter_register') }}">Register</a></li>
-  
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+  .main-wrapper {
+    display: flex;
+    min-height: 91vh;
+  }
+
+  .left-banner {
+    width: 52%;
+    background-color: #14257b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+  }
+
+  .left-banner img {
+    width: 80px;
+    margin-bottom: 20px;
+  }
+
+  .left-banner h1 {
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .right-panel {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fc;
+  }
+
+  .login-container {
+    width: 90%;
+    max-width: 400px;
+    background-color: #ffffff;
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .login-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+  }
+
+  .login-container label {
+    font-weight: 500;
+    color: #333;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .login-container input[type="text"],
+  .login-container input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  .login-container input[type="submit"] {
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .login-container input[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+
+  .login-container .register-link {
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  .login-container .register-link a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  .login-container .register-link a:hover {
+    text-decoration: underline;
+  }
+
+  .login-container ul {
+    padding: 0;
+    margin-top: 15px;
+    list-style: none;
+    color: red;
+    text-align: center;
+  }
+</style>
+
+<div class="main-wrapper">
+  <div class="left-banner">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <h1>Election Commission</h1>
   </div>
-  
-  {% endblock %}
+
+  <div class="right-panel">
+    <div class="login-container">
+      <h2>Voter Login</h2>
+      <form method="POST">
+        <label for="mobile">Mobile Number:</label>
+        <input type="text" name="mobile" required>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+
+        <input type="submit" value="Login">
+      </form>
+
+      <div class="register-link">
+        Didn't register? <a href="{{ url_for('voter_register') }}">Register</a>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
