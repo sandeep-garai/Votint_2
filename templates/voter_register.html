@@ -1,0 +1,151 @@
+{% extends 'base_public.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<head>
+
+<style>
+  .register-wrapper {
+    display: flex;
+    flex-direction: row;
+    min-height: 90vh;
+    background-color: #f5f6fa;
+  }
+
+  .register-left {
+    flex: 1;
+    background-color: #1d2975;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .register-left h1 {
+    font-size: 28px;
+    margin-top: 10px;
+  }
+
+  .register-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .register-form {
+    background-color: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .register-form h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+  }
+
+  .register-form label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 600;
+    color: #34495e;
+  }
+
+  .register-form input[type="text"],
+  .register-form input[type="password"],
+  .register-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+  }
+
+  .register-form input:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+
+  .register-form input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .register-form input[type="submit"]:hover {
+    background-color: #2980b9;
+  }
+
+  .error-messages {
+    margin-top: 20px;
+    color: red;
+    text-align: center;
+  }
+</style>
+</head>
+<div class="register-wrapper">
+  <div class="register-left">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="80">
+    <h1>Election Commission</h1>
+  </div>
+  <div class="register-right">
+    <form class="register-form" method="POST">
+        
+        <label>Voter ID:</label><br>
+        <input type="text" name="voter_id" required><br>
+  
+        <label>Voter Name:</label><br>
+        <input type="text" name="name" required><br>
+  
+        <label>Mobile Number:</label><br>
+        <input type="text" name="mobile" required><br>
+
+        <label>Select Region (State):</label><br>
+<select id="region-select" name="region" style="width: 100%" required>
+  <option value="">-- Select Region --</option>
+  {% for state, code in state_region_map.items() %}
+    <option value="{{ code }}">{{ state }} ({{ code }})</option>
+  {% endfor %}
+</select><br><br>
+
+<script>
+  $(document).ready(function() {
+    $('#region-select').select2({
+      placeholder: "Select your region",
+      allowClear: true,
+      minimumResultsForSearch: 0,  // always allow searching
+      maximumSelectionLength: 1
+    });
+  });
+</script>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br>
+
+      <input type="submit" value="Register">
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="error-messages">
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+    </form>
+  </div>
+</div>
+{% endblock %}

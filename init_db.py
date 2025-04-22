@@ -5,9 +5,10 @@ def init_db(db_name):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
-    with open('schema.sql', 'r') as f:
-        schema = f.read()
-        c.executescript(schema)
+    # only for changing the schema
+    # with open('schema.sql', 'r') as f:
+    #     schema = f.read()
+    #     c.executescript(schema)
 
     # Initialize admin account
     admin_username = 'admin'
@@ -22,17 +23,22 @@ def init_db(db_name):
 
     c.execute("INSERT OR IGNORE INTO ea (id, username, password) VALUES (1, ?, ?)", (ea_username, ea_hash))
 
-    voters = [
-    ('9876543211', 'password1'),
-    ('9123456782', 'password2'),
-    ('9988776653', 'password3'),
-    ('9000011124', 'password4'),
-    ('9555566675', 'password5'),
-    ]
+    voters = [('ABC1234567','Voter 1','1000000001','WB10', 'password1','dummy_public_key')]
 
-    for mobile, plain_pw in voters:
-        hashed_pw = generate_password_hash(plain_pw)
-        c.execute('INSERT OR IGNORE INTO voters (mobile, password) VALUES (?, ?)', (mobile, hashed_pw))
+    for id, name, mobile, region,  password, dummy_key in voters:
+        hashed_pw = generate_password_hash(password)
+        c.execute('INSERT OR IGNORE INTO voters (id, name, mobile, region, password_hash,public_key) VALUES (?, ?, ?, ?, ?, ?)', (id, name, mobile, region, hashed_pw, dummy_key))
+    # voters = [
+    # ('9876543211', 'password1'),
+    # ('9123456782', 'password2'),
+    # ('9988776653', 'password3'),
+    # ('9000011124', 'password4'),
+    # ('9555566675', 'password5'),
+    # ]
+
+    # for mobile, plain_pw in voters:
+    #     hashed_pw = generate_password_hash(plain_pw)
+    #     c.execute('INSERT OR IGNORE INTO voters (mobile, password) VALUES (?, ?)', (mobile, hashed_pw))
 
     conn.commit()
     conn.close()

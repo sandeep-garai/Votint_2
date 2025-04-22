@@ -21,6 +21,28 @@ def index():
 
 from werkzeug.security import check_password_hash
 
+# @app.route('/voter_login', methods=['GET', 'POST'])
+# def voter_login():
+#     if request.method == 'POST':
+#         mobile = request.form['mobile']
+#         password = request.form['password']
+
+#         conn = get_db_connection()
+#         voter = conn.execute('SELECT * FROM voters WHERE mobile = ?', (mobile,)).fetchone()
+#         conn.close()
+
+#         if voter and check_password_hash(voter['password'], password):
+#             session['user'] = mobile
+#             session['voter_id'] = voter['id']
+#             session['role'] = 'voter'
+#             return redirect(url_for('voter_dashboard'))
+#         else:
+#             flash('Invalid credentials. Try again.')
+
+#     return render_template('voter_login.html')
+from flask import request, session, redirect, url_for, flash, render_template
+from werkzeug.security import check_password_hash
+
 @app.route('/voter_login', methods=['GET', 'POST'])
 def voter_login():
     if request.method == 'POST':
@@ -28,18 +50,116 @@ def voter_login():
         password = request.form['password']
 
         conn = get_db_connection()
-        voter = conn.execute('SELECT * FROM voters WHERE mobile = ?', (mobile,)).fetchone()
+        cursor = conn.cursor()
+
+        # Fetch voter by mobile number
+        cursor.execute('SELECT * FROM voters WHERE mobile = ?', (mobile,))
+        voter = cursor.fetchone()
         conn.close()
 
-        if voter and check_password_hash(voter['password'], password):
-            session['user'] = mobile
-            session['voter_id'] = voter['id']
-            session['role'] = 'voter'
+        # If user exists and password matches
+        if voter and check_password_hash(voter['password_hash'], password):
+            session['user'] = voter['name']        # Store name for greeting/use
+            session['voter_id'] = voter['id']      # Store voter ID
+            session['role'] = 'voter'              # Define role
             return redirect(url_for('voter_dashboard'))
         else:
-            flash('Invalid credentials. Try again.')
+            flash('Invalid mobile number or password. Please try again.', 'error')
 
     return render_template('voter_login.html')
+
+# @app.route('/voter_register', methods=['GET', 'POST'])
+# def voter_register():
+#     if request.method == 'POST':
+#         voter_id = request.form['voter_id']
+#         name = request.form['name']
+#         mobile = request.form['mobile']
+#         password = request.form['password']
+
+#         hashed_pw = generate_password_hash(password)
+#         dummy_public_key = 'placeholder_public_key'  # Will be updated later by client
+
+#         conn = get_db_connection()
+#         try:
+#             conn.execute('''
+#                 INSERT INTO voters (id, name, mobile, password_hash, public_key)
+#                 VALUES (?, ?, ?, ?, ?)
+#             ''', (voter_id, name, mobile, hashed_pw, dummy_public_key))
+#             conn.commit()
+#             flash('Registration successful. You can now log in.')
+#             return redirect(url_for('voter_login'))
+#         except Exception as e:
+#             flash('Registration failed. That mobile number or ID might already be used.')
+#         finally:
+#             conn.close()
+
+#     return render_template('voter_register.html')
+
+@app.route('/voter_register', methods=['GET', 'POST'])
+def voter_register():
+    state_region_map = {
+        'Andhra Pradesh': 'AP01',
+        'Arunachal Pradesh': 'AR02',
+        'Assam': 'AS03',
+        'Bihar': 'BR04',
+        'Chhattisgarh': 'CG05',
+        'Delhi': 'DL06',
+        'Goa': 'GA07',
+        'Gujarat': 'GJ08',
+        'Haryana': 'HR09',
+        'Himachal Pradesh': 'HP10',
+        'Jammu and Kashmir': 'JK11',
+        'Jharkhand': 'JH12',
+        'Karnataka': 'KA13',
+        'Kerala': 'KL14',
+        'Madhya Pradesh': 'MP15',
+        'Maharashtra': 'MH16',
+        'Manipur': 'MN17',
+        'Meghalaya': 'ML18',
+        'Mizoram': 'MZ19',
+        'Nagaland': 'NL20',
+        'Odisha': 'OD21',
+        'Punjab': 'PB22',
+        'Rajasthan': 'RJ23',
+        'Sikkim': 'SK24',
+        'Tamil Nadu': 'TN25',
+        'Telangana': 'TS26',
+        'Tripura': 'TR27',
+        'Uttar Pradesh': 'UP28',
+        'Uttarakhand': 'UK29',
+        'West Bengal': 'WB30'
+    }
+
+    if request.method == 'POST':
+        voter_id = request.form['voter_id']
+        name = request.form['name']
+        mobile = request.form['mobile']
+        password = request.form['password']
+        region = request.form['region']
+
+        if region not in state_region_map.values():
+            flash('Choose a valid region code from the list.')
+            return render_template('voter_register.html', state_region_map=state_region_map)
+
+        hashed_pw = generate_password_hash(password)
+        dummy_public_key = 'placeholder_public_key'
+
+        conn = get_db_connection()
+        try:
+            conn.execute('''
+                INSERT INTO voters (id, name, mobile, password_hash, region,  public_key)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (voter_id, name, mobile, hashed_pw, region, dummy_public_key))
+            conn.commit()
+            flash('Registration successful. You can now log in.')
+            return redirect(url_for('voter_login'))
+        except Exception as e:
+            flash('Registration failed. That mobile number or ID might already be used.'+ str(e))
+        finally:
+            conn.close()
+
+    return render_template('voter_register.html', state_region_map=state_region_map)
+
 
 @app.route('/voter_dashboard')
 def voter_dashboard():
@@ -172,10 +292,11 @@ def add_elections():
 
     if request.method == 'POST':
         name = request.form['name']
+        region = request.form['region']
         date = request.form['date']
 
         conn = get_db_connection()
-        conn.execute('INSERT INTO elections (name, date) VALUES (?, ?)', (name, date))
+        conn.execute('INSERT INTO elections (name, region, date) VALUES (?, ? ,?)', (name, region, date))
         conn.commit()
         conn.close()
         flash('Election added successfully!')

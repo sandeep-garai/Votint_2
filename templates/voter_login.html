@@ -86,12 +86,9 @@
   
       <input type="submit" value="Login">
   
-      <div class="register-link">
-        <p>Not Registered?
-          <a href="/voter_register">REGISTER</a>
-        </p>
-      </div>
+      
     </form>
+    Didn't registered? <a href="{{ url_for('voter_register') }}">Register</a></li>
   
     {% with messages = get_flashed_messages() %}
       {% if messages %}
