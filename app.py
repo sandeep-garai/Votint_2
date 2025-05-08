@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+import os
 from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this in production
@@ -61,6 +64,7 @@ def voter_login():
         # Fetch voter by mobile number
         cursor.execute('SELECT * FROM voters WHERE mobile = ?', (mobile,))
         voter = cursor.fetchone()
+        #region = cursor.execute('SELECT ')
         conn.close()
 
         if voter:
@@ -70,6 +74,7 @@ def voter_login():
                     session['user'] = voter['name']
                     session['voter_id'] = voter['id']
                     session['role'] = 'voter'
+                    session['region'] = voter['region']  # ✅ store region
                     return redirect(url_for('voter_dashboard'))
                 else:
                     flash('Your account is under verification. Please wait for approval.', 'warning')
@@ -129,7 +134,7 @@ def voter_register():
             return render_template('voter_register.html', state_region_map=state_region_map)
 
         hashed_pw = generate_password_hash(password)
-        dummy_public_key = 'placeholder_public_key'
+        dummy_public_key = 'Pending Approval'
 
         conn = get_db_connection()
         try:
@@ -148,13 +153,21 @@ def voter_register():
     return render_template('voter_register.html', state_region_map=state_region_map)
 
 
-@app.route('/voter_dashboard')
+from datetime import datetime
+
+@app.route('/voter_dashboard', methods=['GET', 'POST'])
 def voter_dashboard():
     if session.get('role') != 'voter':
         return redirect(url_for('voter_login'))
 
     conn = get_db_connection()
-    elections = conn.execute('SELECT * FROM elections').fetchall()
+    today = datetime.today().strftime('%Y-%m-%d')  # ✅ current date
+    region = session.get('region')  # ✅ get voter's region
+
+    elections = conn.execute(
+        'SELECT * FROM elections WHERE region = ? AND date >= ?', 
+        (region, today)
+    ).fetchall()
     conn.close()
 
     return render_template('voter_dashboard.html', elections=elections, user=session['user'])
@@ -169,7 +182,7 @@ def vote(election_id):
 
     # Check if voter already voted
     already_voted = conn.execute(
-        'SELECT * FROM votes WHERE voter_id = ? AND election_id = ?',
+        'SELECT * FROM blinded_votes WHERE voter_id = ? AND election_id = ?',
         (voter_id, election_id)
     ).fetchone()
 
@@ -180,9 +193,10 @@ def vote(election_id):
 
     if request.method == 'POST':
         candidate_id = request.form['candidate_id']
+        blinded_vote = "placeholder_blind_vote" + candidate_id
         conn.execute(
-            'INSERT INTO votes (voter_id, election_id, candidate_id) VALUES (?, ?, ?)',
-            (voter_id, election_id, candidate_id)
+            'INSERT INTO blinded_votes (voter_id, election_id, blinded_vote) VALUES (?, ?, ?)',
+            (voter_id, election_id, blinded_vote)
         )
         conn.commit()
         conn.close()
@@ -339,16 +353,55 @@ def verify_voters():
         return redirect(url_for('ea_login'))  # Adjust this to your EA login route
 
     conn = get_db_connection()
-
+    
     if request.method == 'POST':
         voter_id = request.form.get('voter_id')
-        conn.execute('UPDATE voters SET verified = 1 WHERE id = ?', (voter_id,))
+
+        # Generate RSA key pair
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+        )
+        public_key = private_key.public_key()
+
+        # Serialize public key to PEM
+        public_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).decode()
+
+        # Serialize private key and store in filesystem (not database)
+        private_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+
+        # Save private key to a secure file
+        private_key_path = f"keys/private_{voter_id}_{datetime.utcnow().timestamp()}.pem" #= f'keys/{voter_id}_private.pem'filename 
+        os.makedirs('keys', exist_ok=True)
+        with open(private_key_path, 'wb') as f:
+            f.write(private_pem)
+
+        # Update database with verified status and public key
+        conn.execute('UPDATE voters SET verified = 1, public_key = ? WHERE id = ?', (public_pem, voter_id))
         conn.commit()
         conn.close()
-        return redirect(url_for('verify_voters'))  # ⬅️ Redirect after POST to avoid resubmission
+
+        flash(f'Voter {voter_id} verified and keys generated.')
+        return redirect(url_for('verify_voters'))
 
     voters = conn.execute('SELECT id, name, mobile, region FROM voters WHERE verified = 0').fetchall()
     conn.close()
+    # if request.method == 'POST':
+    #     voter_id = request.form.get('voter_id')
+    #     conn.execute('UPDATE voters SET verified = 1 WHERE id = ?', (voter_id,))
+    #     conn.commit()
+    #     conn.close()
+    #     return redirect(url_for('verify_voters'))  # ⬅️ Redirect after POST to avoid resubmission
+
+    # voters = conn.execute('SELECT id, name, mobile, region FROM voters WHERE verified = 0').fetchall()
+    # conn.close()
 
     return render_template('verify_vote.html', voters=voters)
 
